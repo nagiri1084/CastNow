@@ -7,6 +7,7 @@ public class Spawner : MonoBehaviour
     public Transform[] spawnPoint;
 
     float timer;
+    public float createEnemyTime = 1f;
 
     private void Awake()
     {
@@ -17,7 +18,7 @@ public class Spawner : MonoBehaviour
     {
         timer += Time.deltaTime;
 
-        if(timer > 0.5f)
+        if(timer > createEnemyTime)
         {
             timer = 0;
             Spawn();

@@ -9,17 +9,21 @@ public class Enemy : MonoBehaviour
     public float maxHealth;
     //public RuntimeAnimatorController[] animCam;
     public Rigidbody2D target;
+    public GameObject Shadow;
+    public float onDamagedTime = 2f;
 
     bool isLive = true; //적 생존 여부
 
     Rigidbody2D rigid;
     SpriteRenderer spriter;
+    SpriteRenderer spriterShadow;
 
 
     void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
         spriter = GetComponent<SpriteRenderer>();
+        spriterShadow = Shadow.GetComponent<SpriteRenderer>();
     }
 
     private void FixedUpdate()
@@ -38,6 +42,7 @@ public class Enemy : MonoBehaviour
         if (!isLive)
             return;
         spriter.flipX = target.position.x < rigid.position.x; //플레이어 방향으로 바라보며 쫒아가기
+        spriterShadow.flipX = target.position.x < rigid.position.x;
     }
 
     private void OnEnable()
@@ -52,6 +57,8 @@ public class Enemy : MonoBehaviour
         if (!collision.CompareTag("Bullet"))
             return;
 
+        StartCoroutine(OnDamaged());
+
         health -= collision.GetComponent<Bullet>().damage;
         if(health > 0)
         {
@@ -61,6 +68,20 @@ public class Enemy : MonoBehaviour
         {
             Dead();
         }
+    }
+
+    IEnumerator OnDamaged()
+    {
+        Debug.Log("OnDamaged()");
+        spriterShadow.enabled = true;
+        yield return new WaitForSeconds(onDamagedTime);
+
+        OffDamaged();
+    }
+
+    void OffDamaged()
+    {
+        spriterShadow.enabled = false;
     }
 
     void Dead()
