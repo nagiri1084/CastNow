@@ -72,7 +72,6 @@ public class Enemy : MonoBehaviour
 
     IEnumerator OnDamaged()
     {
-        Debug.Log("OnDamaged()");
         spriterShadow.enabled = true;
         yield return new WaitForSeconds(onDamagedTime);
 

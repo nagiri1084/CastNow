@@ -26,6 +26,8 @@ public class Player : MonoBehaviour
 
         Vector3 playerDir = this.inputVec;
         spriter.flipX = playerDir.x > 0 ; //플레이어 방향으로 바라보며 쫒아가기
+
+        GameManager.Instance.drawCircle.startPoint = this.gameObject.transform.position;
     }
 
     void FixedUpdate()
