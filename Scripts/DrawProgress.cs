@@ -4,33 +4,52 @@ using UnityEngine;
 
 public class DrawProgress : MonoBehaviour
 {
+    public Animator animator;
+    private AnimatorStateInfo stateInfo;
+    //private float animationProgress = 0f;
+
     public GameObject magicMapStartBtn;
-    private Vector3 mousePos;
     private Vector3 originPos;
     private Vector3 magicMapPos;
+    private float angleInDegrees = 0;
+    private float percent = 0;
 
-    void Update()
+    private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButton(0))
         {
             // 마우스 위치의 z 값을 카메라와 동일하게 설정
-            mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            mousePos = new Vector3(mousePos.x, mousePos.y, 0f);
-            originPos = GameManager.Instance.player.transform.position;
+            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
 
-            // magicMapPos의 z 값을 originPos와 동일하게 설정
-            magicMapPos = magicMapStartBtn.transform.position;
-           
-            //Debug.Log(mousePos + "," + originPos + "," + magicMapPos);
+            Debug.Log(hit.collider.gameObject.name);
+            if(hit.collider.gameObject.name == "MC_Basic_0")
+            {
+                mousePos = new Vector3(mousePos.x, mousePos.y, 0f);
+                originPos = GameManager.Instance.player.transform.position;
 
-            //두 점 사이 벡터
-            Vector3 vectorA = originPos - mousePos;
-            Vector3 vectorB = originPos - magicMapPos;
+                // magicMapPos의 z 값을 originPos와 동일하게 설정
+                magicMapPos = magicMapStartBtn.transform.position;
 
-            //두 벡터 사이 각도 계산
-            float angle = CalculateAngleBetweenVectors(vectorA, vectorB);
-            Debug.Log(angle + " degrees");
+                //Debug.Log(mousePos + "," + originPos + "," + magicMapPos);
+
+                //두 점 사이 벡터
+                Vector3 vectorA = originPos - mousePos;
+                Vector3 vectorB = originPos - magicMapPos;
+
+                //두 벡터 사이 각도 계산
+                float angle = CalculateAngleBetweenVectors(vectorA, vectorB);
+                Debug.Log(angle + " degrees");
+
+                //각도 퍼센트로 변환
+                percent = AngleToPercent(angle);
+                Debug.Log(percent);
+
+                //그리기 애니메이션 시작
+                DrawCircle(percent);
+            }
         }
+
     }
 
     float CalculateAngleBetweenVectors(Vector3 vectorA, Vector3 vectorB)
@@ -49,7 +68,7 @@ public class DrawProgress : MonoBehaviour
         float angleInRadians = Mathf.Acos(cosTheta);
 
         // 라디안을 각도로 변환
-        float angleInDegrees = angleInRadians * Mathf.Rad2Deg;
+        angleInDegrees = angleInRadians * Mathf.Rad2Deg;
 
         // 벡터 A와 B의 외적
         Vector3 crossProduct = Vector3.Cross(vectorA, vectorB);
@@ -61,5 +80,49 @@ public class DrawProgress : MonoBehaviour
         }
 
         return angleInDegrees;
+    }
+
+    float AngleToPercent(float angle)
+    { 
+        if(angle < 0)
+        {
+            angle = Mathf.Abs(angle / 180 * 50);
+            return angle;
+        }
+        else
+        {
+            angle = (1 - angle / 180) * 50 + 50;
+            return angle;
+        }
+    }
+
+    void DrawCircle(float percent)
+    {
+        animator.gameObject.SetActive(true);
+
+        //현재 애니메이션 상태 가져오기
+        stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+        //애니메이션 진행 상황 퍼센트로 계산
+        float normalizedTime = stateInfo.normalizedTime % 1;
+
+        if (stateInfo.normalizedTime >= 1f)
+        {
+            GameManager.Instance.mcManager.ChangedByCircle();
+            animator.gameObject.SetActive(false);
+        }
+        else
+        {
+            if (normalizedTime >= (percent / 100f) + 0.01f) 
+            {
+                //애니메이션 퍼센트가 마우스 터치 각도를 넘어가면 멈추기
+                Debug.Log(normalizedTime);
+                animator.speed = 0f;
+            }
+            else
+            {
+                animator.speed = 1f;
+            }
+        }
     }
 }

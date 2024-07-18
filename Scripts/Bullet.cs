@@ -5,6 +5,7 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     public float damage;
+    public float speed = 10f;
     public int per;
 
     Rigidbody2D rigid;
@@ -21,7 +22,7 @@ public class Bullet : MonoBehaviour
 
         if (per > -1)
         {
-            rigid.velocity = dir * 15f;
+            rigid.velocity = dir * speed;
         }
     }
 

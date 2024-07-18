@@ -9,7 +9,7 @@ public class Weapon : MonoBehaviour
     public int prefabId;
     public float damage;
     public int count;
-    public float speed;
+    public float createTime;
 
     float timer;
     Player player;
@@ -29,12 +29,12 @@ public class Weapon : MonoBehaviour
         switch (id)
         {
             case 0:
-                transform.Rotate(Vector3.back * speed * Time.deltaTime);
+                transform.Rotate(Vector3.back * createTime * Time.deltaTime);
                 break;
             default:
                 timer += Time.deltaTime;
 
-                if(timer > speed)
+                if(timer > createTime)
                 {
                     timer = 0f;
                     Fire();
@@ -55,7 +55,7 @@ public class Weapon : MonoBehaviour
             //    break;
 
             default:
-                speed = 0.5f;
+                createTime = 0.5f;
                 break;
         }
     }
